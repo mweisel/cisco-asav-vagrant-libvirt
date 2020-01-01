@@ -1,0 +1,4 @@
+.venv/
+*.box
+*.qcow2
+*.iso

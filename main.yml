@@ -1,0 +1,79 @@
+- name: create cisco asav vagrant box
+  hosts: localhost
+  gather_facts: no
+
+  vars:
+    - disk_image_name: cisco-asav.qcow2
+    - conf_iso: day0.iso
+    - domain_name: cisco-asav
+
+  tasks:
+    - name: "verify the {{ disk_image_name }} file is available"
+      stat:
+        path: "/var/lib/libvirt/images/{{ disk_image_name }}"
+      register: stat_result
+      failed_when: not stat_result.stat.exists
+
+    - name: "verify the {{ conf_iso }} file is available"
+      stat:
+        path: "/var/lib/libvirt/images/{{ conf_iso }}"
+      register: stat_result
+      failed_when: not stat_result.stat.exists
+
+    - name: verify the vagrant-libvirt network is active
+      command: virsh -c qemu:///system net-list --name
+      register: vnet_result
+      changed_when: no
+      failed_when: not vnet_result.stdout is search('vagrant-libvirt')
+
+    - name: define the domain
+      command: virsh -c qemu:///system define ./templates/{{ domain_name }}.xml
+      register: define_result
+      failed_when: define_result.rc != 0
+
+    - name: start the domain
+      command: virsh -c qemu:///system start {{ domain_name }}
+      register: start_result
+      failed_when: start_result.rc != 0
+
+    - name: allow time for initial boot, reload, and configuration
+      pause:
+        minutes: 3
+
+    - name: get the management interface ip address
+      shell: >
+        virsh net-dhcp-leases vagrant-libvirt 
+        --mac 52:54:00:08:1d:73 
+        | grep -oE '((1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.){3}(1?[0-9][0-9]?|2[0-4][0-9]|25[0-5])'
+      register: mgmt_ip 
+      changed_when: no
+      failed_when: mgmt_ip.rc != 0
+
+    - name: ssh available on management interface (config verification)
+      wait_for:
+        host: "{{ mgmt_ip.stdout }}"
+        port: 22
+        delay: 10
+        timeout: 60
+
+    - name: stop (destroy) the domain
+      command: virsh -c qemu:///system destroy {{ domain_name }}
+      register: destroy_result
+      failed_when: destroy_result.rc != 0
+
+    - name: undefine the domain
+      command: virsh -c qemu:///system undefine {{ domain_name }}
+      register: undefine_result
+      failed_when: undefine_result.rc != 0
+
+    - name: "copy the {{ disk_image_name }} file to the files directory"
+      copy:
+        src: "/var/lib/libvirt/images/{{ disk_image_name }}"
+        dest: "files/{{ disk_image_name }}"
+        remote_src: yes
+
+    # https://github.com/vagrant-libvirt/vagrant-libvirt/blob/master/tools/create_box.sh
+    - name: create the vagrant box artifact
+      script: create_box.sh ./files/{{ disk_image_name }}
+      args:
+        executable: bash
