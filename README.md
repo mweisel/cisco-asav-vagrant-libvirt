@@ -7,7 +7,7 @@ A procedure for creating a Cisco ASAv Vagrant box for the [libvirt](https://libv
   * [Ansible](https://docs.ansible.com/ansible/latest/index.html)
   * [libvirt](https://libvirt.org) with client tools
   * [QEMU](https://www.qemu.org)
-  * [Vagrant](https://www.vagrantup.com)
+  * [Vagrant](https://www.vagrantup.com) <= 2.2.9
   * [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
 
 ## Steps
