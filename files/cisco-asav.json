@@ -1,0 +1,15 @@
+{
+  "name": "cisco-asav",
+  "description": "This box contains the Cisco ASAv device.",
+  "versions": [
+    {
+      "version": "VER",
+      "providers": [
+        {
+          "name": "libvirt",
+          "url": "file://HOME/boxes/cisco-asav-VER.box"
+        }
+      ]
+    }
+  ]
+}

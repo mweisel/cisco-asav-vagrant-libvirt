@@ -36,7 +36,7 @@
       register: start_result
       failed_when: start_result.rc != 0
 
-    - name: allow time for initial boot, reload, and configuration
+    - name: allow time for initial boot, reload and configuration
       pause:
         minutes: 3
 

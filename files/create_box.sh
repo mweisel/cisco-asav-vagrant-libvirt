@@ -107,6 +107,8 @@ cat > Vagrantfile <<EOF
 Vagrant.configure("2") do |config|
   # Use Vagrant's default insecure key
   config.ssh.insert_key = false
+  # Add deprecated diffie-hellman algorithm
+  config.ssh.extra_args = "-oKexAlgorithms=+diffie-hellman-group14-sha1"
   # Set timeout to 3 mins
   config.vm.boot_timeout = 180
   # Disable default host <-> guest synced folder
