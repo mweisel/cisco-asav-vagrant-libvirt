@@ -11,8 +11,10 @@ A procedure for creating a Cisco ASAv Vagrant box for the [libvirt](https://libv
   * [Ansible](https://docs.ansible.com/ansible/latest/index.html)
   * [libvirt](https://libvirt.org) with client tools
   * [QEMU](https://www.qemu.org)
-  * [Vagrant](https://www.vagrantup.com) <= 2.2.9
+  * [Vagrant](https://www.vagrantup.com) >= 2.2.10
   * [vagrant-libvirt](https://github.com/vagrant-libvirt/vagrant-libvirt)
+
+> Vagrant version **2.2.16** introduced a bug that *breaks* SSH connectivity - [#12344](https://github.com/hashicorp/vagrant/issues/12344)
 
 ## Steps
 
@@ -21,7 +23,7 @@ A procedure for creating a Cisco ASAv Vagrant box for the [libvirt](https://libv
 <pre>
 $ <b>which git python ansible libvirtd virsh qemu-system-x86_64 vagrant</b>
 $ <b>vagrant plugin list</b>
-vagrant-libvirt (0.3.0, global)
+vagrant-libvirt (0.5.1, global)
 </pre>
 
 1\. Install the `genisoimage` tool.
@@ -43,7 +45,7 @@ $ <b>sudo pacman -S cdrtools</b>
 3\. Copy (and rename) the disk image file to the `/var/lib/libvirt/images` directory.
 
 <pre>
-$ <b>sudo cp $HOME/Downloads/asav992-80.qcow2 /var/lib/libvirt/images/cisco-asav.qcow2</b>
+$ <b>sudo cp $HOME/Downloads/asav9-16-1.qcow2 /var/lib/libvirt/images/cisco-asav.qcow2</b>
 </pre>
 
 4\. Modify the file ownership and permissions. Note the owner may differ between Linux distributions.
@@ -121,7 +123,7 @@ $ <b>ansible-playbook main.yml</b>
 12\. Copy (and rename) the Vagrant box artifact to the `boxes` directory.
 
 <pre>
-$ <b>cp cisco-asav.box $HOME/boxes/cisco-asav-9.9.2.box</b>
+$ <b>cp cisco-asav.box $HOME/boxes/cisco-asav-9.16.1.box</b>
 </pre>
 
 13\. Copy the box metadata file to the `boxes` directory.
@@ -155,11 +157,11 @@ $ <b>awk '/VER/{gsub(/^ */,"");print}' cisco-asav.json</b>
 "version": "<b>VER</b>",
 "url": "file:///home/marc/boxes/cisco-asav-<b>VER</b>.box"
 
-$ <b>sed -i 's/VER/9.9.2/g' cisco-asav.json</b>
+$ <b>sed -i 's/VER/9.16.1/g' cisco-asav.json</b>
 
 $ <b>awk '/\&lt;version\&gt;|url/{gsub(/^ */,"");print}' cisco-asav.json</b>
-"version": "<b>9.9.2</b>",
-"url": "file:///home/marc/boxes/cisco-asav-<b>9.9.2</b>.box"
+"version": "<b>9.16.1</b>",
+"url": "file:///home/marc/boxes/cisco-asav-<b>9.16.1</b>.box"
 </pre>
 
 17\. Add the Vagrant box to the local inventory.
